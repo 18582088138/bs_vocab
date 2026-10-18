@@ -4,6 +4,17 @@
  */
 'use strict';
 
+/* 词库数据（2MB+）在慢网络下可能下载失败：给出可操作提示而非白屏 */
+if (!window.DECK_DATA) {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('main').innerHTML =
+      '<div class="done-panel" style="padding-top:15vh"><h2>词库加载失败</h2>' +
+      '<p>数据文件较大，网络较慢时可能没下载完，请刷新重试</p>' +
+      '<button class="ghost-btn" onclick="location.reload()">刷新</button></div>';
+  });
+  throw new Error('DECK_DATA missing');
+}
+
 const CARDS = window.DECK_DATA;
 const DAY = 86400000;
 
