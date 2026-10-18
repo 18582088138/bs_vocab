@@ -83,10 +83,14 @@
         <button class="chip" data-kind="slang">俚语</button>
         <button class="chip" data-kind="sentence">句子</button>
       </div>
-      <span id="browseCount" class="browse-count"></span>
+      <span id="browseCount" class="browse-count hidden"></span>
     </div>
     <div id="wordList" class="word-list"></div>
-    <button id="loadMoreBtn" class="ghost-btn hidden">加载更多…</button>
+    <div id="pagination" class="pagination">
+      <button id="pagePrev" class="page-btn">‹ 上一页</button>
+      <span id="pageInfo" class="page-info"></span>
+      <button id="pageNext" class="page-btn">下一页 ›</button>
+    </div>
   </section>
 
   <!-- ============ STATS ============ -->

@@ -169,7 +169,9 @@ function fillFace(face, card, isFront) {
     phEl.textContent = card.ph ? '/' + card.ph + '/' : '';
   }
   if (!isFront) {
-    face.querySelector('.meaning').innerHTML = card.meaning;
+    const mEl = face.querySelector('.meaning');
+    mEl.innerHTML = card.meaning;
+    mEl.classList.toggle('zh-sub', isSentence);
     face.querySelector('.en-def').textContent = card.en;
     face.querySelector('.example').innerHTML = card.example || '';
     face.querySelector('.source').textContent = card.source ? '📺 ' + card.source : '';
@@ -252,8 +254,8 @@ if ('speechSynthesis' in window) speechSynthesis.getVoices(); // 预热语音列
 
 /* ================= 浏览 ================= */
 let browseFilter = { q: '', kind: '' };
-let browseShown = 0;
-const PAGE = 80;
+let browsePage = 0;
+const PAGE = 100;
 
 function filteredCards() {
   const q = browseFilter.q.trim().toLowerCase();
@@ -268,9 +270,13 @@ function filteredCards() {
 }
 
 function renderBrowse(reset = true) {
-  if (reset) { browseShown = 0; document.getElementById('wordList').innerHTML = ''; }
+  if (reset) browsePage = 0;
   const list = filteredCards();
-  const slice = list.slice(browseShown, browseShown + PAGE);
+  const pages = Math.max(1, Math.ceil(list.length / PAGE));
+  browsePage = Math.max(0, Math.min(browsePage, pages - 1));
+  const slice = list.slice(browsePage * PAGE, (browsePage + 1) * PAGE);
+  const wl = document.getElementById('wordList');
+  wl.innerHTML = '';
   const frag = document.createDocumentFragment();
   for (const c of slice) {
     const st = stateOf(c.id);
@@ -285,10 +291,10 @@ function renderBrowse(reset = true) {
     div.addEventListener('click', () => openModal(c));
     frag.appendChild(div);
   }
-  document.getElementById('wordList').appendChild(frag);
-  browseShown += slice.length;
-  document.getElementById('browseCount').textContent = `共 ${list.length} 条`;
-  document.getElementById('loadMoreBtn').classList.toggle('hidden', browseShown >= list.length);
+  wl.appendChild(frag);
+  document.getElementById('pageInfo').textContent = `第 ${browsePage + 1} / ${pages} 页 · 共 ${list.length} 条`;
+  document.getElementById('pagePrev').disabled = browsePage <= 0;
+  document.getElementById('pageNext').disabled = browsePage >= pages - 1;
 }
 
 function escapeHtml(s) {
@@ -302,7 +308,9 @@ function openModal(c) {
   m.querySelector('.kind-badge').className = 'kind-badge ' + c.kind;
   m.querySelector('.term').textContent = c.term;
   m.querySelector('.phonetic').textContent = c.ph ? '/' + c.ph + '/' : '';
-  m.querySelector('.meaning').innerHTML = c.meaning;
+  const mEl = m.querySelector('.meaning');
+  mEl.innerHTML = c.meaning;
+  mEl.classList.toggle('zh-sub', c.kind === 'sentence');
   m.querySelector('.en-def').textContent = c.en;
   m.querySelector('.example').innerHTML = c.example || '';
   m.querySelector('.source').textContent = c.source ? '📺 ' + c.source : '';
@@ -392,7 +400,8 @@ document.querySelectorAll('#kindChips .chip').forEach(ch => ch.addEventListener(
   document.querySelectorAll('#kindChips .chip').forEach(x => x.classList.toggle('active', x === ch));
   browseFilter.kind = ch.dataset.kind; renderBrowse(true);
 }));
-document.getElementById('loadMoreBtn').addEventListener('click', () => renderBrowse(false));
+document.getElementById('pagePrev').addEventListener('click', () => { browsePage--; renderBrowse(false); });
+document.getElementById('pageNext').addEventListener('click', () => { browsePage++; renderBrowse(false); });
 
 document.querySelectorAll('.modal-close').forEach(b => b.addEventListener('click', closeModals));
 document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => {
@@ -456,6 +465,11 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 /* 键盘 */
 document.addEventListener('keydown', e => {
   if (e.target instanceof Element && e.target.matches('input, textarea')) return;
+  if (document.getElementById('view-browse').classList.contains('active')) {
+    if (e.code === 'ArrowLeft') { browsePage--; renderBrowse(false); }
+    else if (e.code === 'ArrowRight') { browsePage++; renderBrowse(false); }
+    return;
+  }
   if (!document.getElementById('view-study').classList.contains('active')) return;
   if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); flipped ? rate(2) : flip(); }
   else if (flipped && ['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code)) {
