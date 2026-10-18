@@ -29,4 +29,19 @@ python split_audio.py "…" --model small.en
 ## 学习规则
 
 - 每日新卡默认 20 张（设置可调），其中**俚语+句子 ≥50%**，配额内句子优先
-- 句子卡为听力模式：正面只放音频，回忆后翻面看文本
+- 句子卡为听力模式：正面只放音频，回忆后翻面看文本+中文对照
+
+## 部署
+
+整个仓库（应用 + bs-sentence 拆句数据 + 工具）一次 push 全部上 GitHub：
+
+```bash
+git remote add origin https://github.com/<你的用户名>/bambi-vocab.git
+git push -u origin main
+```
+
+- GitHub Pages：Settings → Pages → main / (root)，应用地址为
+  `https://<你的用户名>.github.io/bambi-vocab/bambi-pc/`（注意带 /bambi-pc/ 路径）
+- Vercel：导入仓库时 Root Directory 选 `bambi-pc`，得到无子路径的干净域名
+- 注意：GitHub Pages 免费版只支持**公开**仓库；私有仓库想用 Pages 需 GitHub Pro，
+  或改用 Vercel / Cloudflare Pages（免费版均支持私有仓库）

@@ -16,21 +16,24 @@
 
 ## 部署（GitHub Pages）
 
+仓库根目录是项目根（含 bambi-pc/、bs-sentence/、工具脚本），在项目根目录执行：
+
 ```bash
-# 在本目录下（已初始化 git 仓库）
-git add -A && git commit -m "Bambi Vocab PWA"
+git add -A && git commit -m "update"
 git remote add origin https://github.com/<你的用户名>/bambi-vocab.git
 git push -u origin main
 ```
 
 然后到仓库 **Settings → Pages → Build and deployment → Source: Deploy from a branch →
 Branch: main / (root)**，保存。约 1 分钟后应用上线：
-`https://<你的用户名>.github.io/bambi-vocab/`
+`https://<你的用户名>.github.io/bambi-vocab/bambi-pc/`
+（应用位于 bambi-pc 子目录，打开时带这个路径即可；加到主屏幕后地址栏不可见）
 
 ## 部署（Vercel，备选）
 
-把本仓库导入 Vercel（New Project → Import），框架选 Other，无需任何配置，
-自动获得 `https://<项目名>.vercel.app` 域名并在每次 push 后自动更新。
+把仓库导入 Vercel（New Project → Import），**Root Directory 设置为 `bambi-pc`**，
+框架选 Other。自动获得 `https://<项目名>.vercel.app` 干净域名（不带子路径），
+每次 push 后自动更新。Vercel 免费版支持私有仓库。
 
 ## 功能
 
