@@ -95,7 +95,23 @@ function buildQueue() {
     [fresh[i], fresh[j]] = [fresh[j], fresh[i]];
   }
   const allowance = Math.max(0, settings.newPerDay + extraNew - daily.newCount);
-  const newItems = fresh.slice(0, allowance).map(card => ({ card, learning: false }));
+  // 每日新卡中俚语+句子占比 ≥50%；配额内句子优先于俚语，保证句子稳定出现
+  const sents  = fresh.filter(c => c.kind === 'sentence');
+  const slangs = fresh.filter(c => c.kind === 'slang');
+  const others = fresh.filter(c => c.kind !== 'slang' && c.kind !== 'sentence');
+  const quotaA = Math.ceil(allowance * 0.5);
+  const nSent  = Math.min(sents.length, Math.ceil(quotaA / 2));
+  const nSlang = Math.min(slangs.length, quotaA - nSent);
+  let picked = sents.slice(0, nSent).concat(slangs.slice(0, nSlang));
+  const nOther = Math.min(others.length, allowance - picked.length);
+  picked = picked.concat(others.slice(0, nOther));
+  const rest = allowance - picked.length;
+  if (rest > 0) picked = picked.concat(sents.slice(nSent, nSent + rest), slangs.slice(nSlang, nSlang + rest));
+  for (let i = picked.length - 1; i > 0; i--) {   // 打乱，避免句子卡扎堆
+    const j = Math.floor(Math.random() * (i + 1));
+    [picked[i], picked[j]] = [picked[j], picked[i]];
+  }
+  const newItems = picked.map(card => ({ card, learning: false }));
   queue = due.concat(newItems);
   sessionTotal = queue.length;
   sessionDone = 0;
@@ -137,10 +153,21 @@ function showCard(item) {
 }
 
 function fillFace(face, card, isFront) {
+  const isSentence = card.kind === 'sentence';
   face.querySelector('.kind-badge').textContent = kindLabel(card.kind);
   face.querySelector('.kind-badge').className = 'kind-badge ' + card.kind;
-  face.querySelector('.term').textContent = card.term;
-  face.querySelector('.phonetic').textContent = card.ph ? '/' + card.ph + '/' : '';
+  const termEl = face.querySelector('.term');
+  const phEl = face.querySelector('.phonetic');
+  if (isFront && isSentence) {
+    // 句子卡正面：听力模式，只放声音不露文本
+    termEl.textContent = '🎧';
+    termEl.classList.remove('sentence-back');
+    phEl.textContent = '仔细听，回忆这句说了什么';
+  } else {
+    termEl.textContent = card.term;
+    termEl.classList.toggle('sentence-back', isSentence);
+    phEl.textContent = card.ph ? '/' + card.ph + '/' : '';
+  }
   if (!isFront) {
     face.querySelector('.meaning').innerHTML = card.meaning;
     face.querySelector('.en-def').textContent = card.en;
@@ -150,7 +177,7 @@ function fillFace(face, card, isFront) {
 }
 
 function kindLabel(k) {
-  return { word: '单词', phrase: '短语', slang: '俚语' }[k] || k;
+  return { word: '单词', phrase: '短语', slang: '俚语', sentence: '句子' }[k] || k;
 }
 
 function flip() {
@@ -328,7 +355,7 @@ function renderStats() {
     kinds[c.kind].total++;
     if (stateOf(c.id).st === 'review') kinds[c.kind].learned++;
   }
-  const colors = { word: 'var(--easy)', phrase: 'var(--accent2)', slang: 'var(--accent)' };
+  const colors = { word: 'var(--easy)', phrase: 'var(--accent2)', slang: 'var(--accent)', sentence: 'var(--good)' };
   document.getElementById('kindBreakdown').innerHTML = Object.entries(kinds).map(([k, v]) => {
     const pct = Math.round(v.learned / v.total * 100);
     return `<div class="kb-row"><span>${kindLabel(k)} (${v.total})</span>
