@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bambi Vocab · 背单词</title>
+<meta name="theme-color" content="#14121a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bambi Vocab">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <div class="brand">🦌 Bambi <span>Vocab</span></div>
+  <nav>
+    <button class="tab active" data-view="study">学习</button>
+    <button class="tab" data-view="browse">浏览</button>
+    <button class="tab" data-view="stats">统计</button>
+  </nav>
+  <button id="settingsBtn" class="icon-btn" title="设置">⚙</button>
+</header>
+
+<main>
+  <!-- ============ STUDY ============ -->
+  <section id="view-study" class="view active">
+    <div class="session-bar">
+      <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+      <div id="sessionInfo" class="session-info"></div>
+    </div>
+
+    <div id="cardScene" class="card-scene">
+      <div id="card" class="card">
+        <div class="face front">
+          <div class="kind-badge"></div>
+          <div class="term"></div>
+          <div class="phonetic"></div>
+          <button class="audio-btn" title="发音 (L)">🔊</button>
+          <div class="hint">点击卡片或按空格查看答案</div>
+        </div>
+        <div class="face back">
+          <div class="kind-badge"></div>
+          <div class="term small"></div>
+          <div class="phonetic small"></div>
+          <hr>
+          <div class="meaning"></div>
+          <div class="en-def"></div>
+          <div class="example"></div>
+          <div class="source"></div>
+          <button class="audio-btn" title="发音 (L)">🔊</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="answerBar" class="answer-bar hidden">
+      <button class="rate r-again" data-r="0">重来<br><small></small></button>
+      <button class="rate r-hard"  data-r="1">困难<br><small></small></button>
+      <button class="rate r-good"  data-r="2">认识<br><small></small></button>
+      <button class="rate r-easy"  data-r="3">简单<br><small></small></button>
+    </div>
+    <button id="showAnswerBtn" class="show-answer">显示答案</button>
+
+    <div id="donePanel" class="done-panel hidden">
+      <div class="done-emoji">🎀</div>
+      <h2>今天的任务完成啦！</h2>
+      <p id="doneStats"></p>
+      <button id="extraStudyBtn" class="ghost-btn">继续多学一点（额外新卡）</button>
+    </div>
+  </section>
+
+  <!-- ============ BROWSE ============ -->
+  <section id="view-browse" class="view">
+    <div class="browse-toolbar">
+      <input id="searchInput" type="search" placeholder="搜索单词 / 中文释义 / 英文释义…">
+      <div class="chips" id="kindChips">
+        <button class="chip active" data-kind="">全部</button>
+        <button class="chip" data-kind="word">单词</button>
+        <button class="chip" data-kind="phrase">短语</button>
+        <button class="chip" data-kind="slang">俚语</button>
+      </div>
+      <span id="browseCount" class="browse-count"></span>
+    </div>
+    <div id="wordList" class="word-list"></div>
+    <button id="loadMoreBtn" class="ghost-btn hidden">加载更多…</button>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <section id="view-stats" class="view">
+    <div class="stat-cards" id="statCards"></div>
+    <h3>未来 7 天到期</h3>
+    <div id="forecast" class="forecast"></div>
+    <h3>词库构成</h3>
+    <div id="kindBreakdown" class="kind-breakdown"></div>
+    <div class="danger-zone">
+      <button id="exportBtn" class="ghost-btn">导出学习进度</button>
+      <button id="importBtn" class="ghost-btn">导入学习进度</button>
+      <button id="resetBtn" class="danger-btn">清空全部学习记录</button>
+    </div>
+  </section>
+</main>
+
+<!-- detail modal -->
+<div id="modal" class="modal hidden">
+  <div class="modal-body">
+    <button class="modal-close">×</button>
+    <div class="kind-badge"></div>
+    <div class="term"></div>
+    <div class="phonetic"></div>
+    <button class="audio-btn">🔊</button>
+    <hr>
+    <div class="meaning"></div>
+    <div class="en-def"></div>
+    <div class="example"></div>
+    <div class="source"></div>
+  </div>
+</div>
+
+<!-- settings modal -->
+<div id="settingsModal" class="modal hidden">
+  <div class="modal-body settings">
+    <button class="modal-close">×</button>
+    <h3>设置</h3>
+    <label>每天新卡数量
+      <input id="setNewPerDay" type="number" min="1" max="200">
+    </label>
+    <label class="row">
+      <input id="setAutoplay" type="checkbox"> 翻卡时自动发音
+    </label>
+    <div class="offline-audio">
+      <button id="cacheAllBtn" class="ghost-btn">下载全部音频供离线使用</button>
+      <div id="cacheAllStatus" class="cache-status"></div>
+    </div>
+    <button id="saveSettingsBtn" class="ghost-btn">保存</button>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
